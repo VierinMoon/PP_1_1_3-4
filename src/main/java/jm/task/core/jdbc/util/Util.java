@@ -18,6 +18,14 @@ public class Util {
         }
         return connection;
     }
+
+    public static void closeConnection() {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
 
 
