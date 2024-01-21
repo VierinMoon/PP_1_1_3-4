@@ -22,7 +22,5 @@ public class Main {
         userFinalTest.cleanUsersTable();
 
         userFinalTest.dropUsersTable();
-
-        Util.closeConnection();
     }
 }
