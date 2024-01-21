@@ -1,32 +1,31 @@
 package jm.task.core.jdbc.dao;
 import jm.task.core.jdbc.util.Util;
 import jm.task.core.jdbc.model.User;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
     private String sql;
 
+    private final Connection connection = Util.getConnection();
+
     public UserDaoJDBCImpl() {
 
     }
 
     public void createUsersTable() {
-        sql = "create table if not exists users\n" +
-                "(\n" +
-                "    id          int auto_increment\n" +
-                "        primary key,\n" +
-                "    name        varchar(40) null,\n" +
-                "    `lastName` varchar(40) null,\n" +
-                "    age         tinyint     null\n" +
-                ");";
+        try (Statement statement = connection.createStatement()){
+            sql = "create table if not exists users\n" +
+                    "(\n" +
+                    "    id          int auto_increment\n" +
+                    "        primary key,\n" +
+                    "    name        varchar(40) null,\n" +
+                    "    `lastName` varchar(40) null,\n" +
+                    "    age         tinyint     null\n" +
+                    ");";
 
-        try {
-            Statement statement = Util.getConnection().createStatement();
             statement.executeUpdate(sql);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -34,10 +33,9 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void dropUsersTable() {
-        sql = "drop table if exists users\n";
+        try (Statement statement = connection.createStatement()) {
+            sql = "drop table if exists users\n";
 
-        try {
-            Statement statement = Util.getConnection().createStatement();
             statement.executeUpdate(sql);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -46,8 +44,9 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void saveUser(String name, String lastName, byte age) {
         sql = "insert into users (name, lastName, age) values(?, ?, ?)";
-        try {
-            PreparedStatement preparedStatement = Util.getConnection().prepareStatement(sql);
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
+
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
             preparedStatement.setByte(3, age);
@@ -61,8 +60,7 @@ public class UserDaoJDBCImpl implements UserDao {
     public void removeUserById(long id) {
         sql = "delete from users where id=?";
 
-        try {
-            PreparedStatement preparedStatement = Util.getConnection().prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setLong(1, id);
 
@@ -78,8 +76,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
         sql = "select id, name, lastName, age from users";
 
-        try {
-            Statement statement = Util.getConnection().createStatement();
+        try (Statement statement = connection.createStatement()) {
 
             ResultSet resultSet = statement.executeQuery(sql);
 
@@ -101,8 +98,7 @@ public class UserDaoJDBCImpl implements UserDao {
     public void cleanUsersTable() {
         sql = "truncate table users";
 
-        try {
-            PreparedStatement preparedStatement = Util.getConnection().prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
