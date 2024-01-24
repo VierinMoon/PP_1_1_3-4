@@ -10,7 +10,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        UserService userFinalTest = new UserServiceImpl();
+        UserService userFinalTest = new UserServiceImpl(new UserDaoHibernateImpl());
 
         userFinalTest.createUsersTable();
 
